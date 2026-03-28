@@ -6,19 +6,26 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var service: PokemonService?
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        PokemonListView()
+            .task {
+                guard service == nil else { return }
+                service = PokemonService(
+                    client: PokeAPIClient(),
+                    modelContainer: modelContext.container
+                )
+                await service?.fetchAllIfNeeded()
+            }
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: Pokemon.self, inMemory: true)
 }
