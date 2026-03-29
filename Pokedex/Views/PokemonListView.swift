@@ -62,10 +62,15 @@ struct PokemonListView: View {
                 ForEach(groupedPokemon, id: \.generation) { group in
                     Section(generationNames[group.generation] ?? "Generation \(group.generation)") {
                         ForEach(group.pokemon) { mon in
-                            PokemonRowView(pokemon: mon)
+                            NavigationLink(value: mon) {
+                                PokemonRowView(pokemon: mon)
+                            }
                         }
                     }
                 }
+            }
+            .navigationDestination(for: Pokemon.self) { mon in
+                PokemonDetailView(pokemon: mon)
             }
             .listStyle(.plain)
             // displayMode: .always → Suchleiste immer sichtbar, kein Einblend-Lag beim Tippen

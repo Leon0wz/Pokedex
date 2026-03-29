@@ -51,9 +51,12 @@ nonisolated struct PokemonListItem: Codable, Sendable {
 nonisolated struct PokemonDetailResponse: Codable, Sendable {
     let id: Int               // Pokédex-Nummer
     let name: String          // Name des Pokémon
+    let height: Int           // Höhe in Dezimetern
+    let weight: Int           // Gewicht in Hektogramm
     let sprites: Sprites      // BildURLs
     let types: [TypeSlot]     // Typ(en) des Pokémon (z. B. Feuer, Wasser)
     let stats: [StatSlot]     // Basis-Stats (KP, Angriff, Verteidigung usw.)
+    let abilities: [AbilitySlot] // Fähigkeiten des Pokémon
 
     /// Enthält die URLs zu den verschiedenen Sprite-Bildern des Pokémon.
     nonisolated struct Sprites: Codable, Sendable {
@@ -92,6 +95,19 @@ nonisolated struct PokemonDetailResponse: Codable, Sendable {
         let type: NamedResource    // Der eigentliche Typ (Name + URL)
     }
 
+    /// Ein Ability-Slot: enthält die Fähigkeit und ob sie versteckt ist.
+    struct AbilitySlot: Codable, Sendable {
+        let ability: NamedResource
+        let isHidden: Bool
+        let slot: Int
+
+        enum CodingKeys: String, CodingKey {
+            case ability
+            case isHidden = "is_hidden"
+            case slot
+        }
+    }
+
     /// Ein Stat-Slot: enthält den Basiswert und den Namen des Stats.
     nonisolated struct StatSlot: Codable, Sendable {
         let baseStat: Int          // Der Basiswert des Stats (z. B. 45 für KP)
@@ -110,4 +126,40 @@ nonisolated struct PokemonDetailResponse: Codable, Sendable {
 nonisolated struct NamedResource: Codable, Sendable {
     let name: String   // Name der Ressource, z. B. "fire" oder "attack"
     let url: String    // Link zur Detailseite der Ressource in der API
+}
+
+// MARK: - Species endpoint
+// Antwort der API auf: GET /api/v2/pokemon-species/{id}
+
+/// Species-Informationen eines Pokémon (Beschreibungstext, Kategorie, etc.).
+struct PokemonSpeciesResponse: Codable, Sendable {
+    let id: Int
+    let name: String
+    let genera: [Genus]
+    let flavorTextEntries: [FlavorTextEntry]
+    let isLegendary: Bool
+    let isMythical: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, genera
+        case flavorTextEntries = "flavor_text_entries"
+        case isLegendary = "is_legendary"
+        case isMythical = "is_mythical"
+    }
+
+    struct Genus: Codable, Sendable {
+        let genus: String
+        let language: NamedResource
+    }
+
+    struct FlavorTextEntry: Codable, Sendable {
+        let flavorText: String
+        let language: NamedResource
+        let version: NamedResource
+
+        enum CodingKeys: String, CodingKey {
+            case flavorText = "flavor_text"
+            case language, version
+        }
+    }
 }

@@ -65,43 +65,17 @@ struct PokemonRowView: View {
     }
 }
 
-/// Zeigt einen farbigen Typ-Badge für einen Pokémon-Typ an (z. B. "Fire", "Water").
+/// Zeigt einen farbigen Typ-Badge für einen Pokemon-Typ an.
 struct TypeBadge: View {
-    let typeName: String   // Name des Typs in Kleinbuchstaben, z. B. "fire"
+    let typeName: String
 
     var body: some View {
-        Text(typeName.capitalized)   // Ersten Buchstaben groß schreiben
+        Text(typeName.capitalized)
             .font(.caption2.weight(.medium))
-            .padding(.horizontal, 8)     // Horizontaler Innenabstand
-            .padding(.vertical, 3)       // Vertikaler Innenabstand
-            // .opacity(0.2) = halb-transparente Hintergrundfarbe (pastellartig)
-            .background(color(for: typeName).opacity(0.2))
-            .foregroundStyle(color(for: typeName))   // Textfarbe = volle Typfarbe
-            .clipShape(Capsule())        // Abgerundete Pillenform
-    }
-
-    /// Gibt die passende Farbe für jeden der 18 Pokémon-Typen zurück.
-    /// switch = Vergleich mit mehreren Fällen (wie if/else if, aber übersichtlicher).
-    private func color(for type: String) -> Color {
-        switch type.lowercased() {   // .lowercased() = immer in Kleinbuchstaben vergleichen
-        case "fire":     .orange
-        case "water":    .blue
-        case "grass":    .green
-        case "electric": .yellow
-        case "psychic":  .pink
-        case "ice":      Color(red: 0.4, green: 0.8, blue: 1.0)   // Hellblau
-        case "dragon":   .indigo
-        case "dark":     Color(red: 0.3, green: 0.2, blue: 0.2)   // Dunkelbraun
-        case "fairy":    Color(red: 1.0, green: 0.4, blue: 0.7)   // Rosa
-        case "fighting": .red
-        case "poison":   .purple
-        case "ground":   Color(red: 0.8, green: 0.6, blue: 0.3)   // Sandbraun
-        case "flying":   Color(red: 0.5, green: 0.7, blue: 0.9)   // Hellblau-Grau
-        case "bug":      Color(red: 0.5, green: 0.7, blue: 0.1)   // Gelbgrün
-        case "rock":     Color(red: 0.7, green: 0.6, blue: 0.4)   // Steingrau-Braun
-        case "ghost":    Color(red: 0.4, green: 0.3, blue: 0.6)   // Violett
-        case "steel":    Color(red: 0.7, green: 0.7, blue: 0.8)   // Silbergrau
-        default:         .gray   // Unbekannte Typen: grau
-        }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Color.pokemonType(typeName).opacity(0.2))
+            .foregroundStyle(Color.pokemonType(typeName))
+            .clipShape(Capsule())
     }
 }

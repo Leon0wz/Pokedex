@@ -146,6 +146,15 @@ actor PokemonService {
         }
         // JSONEncoder kodiert Swift-Objekte zu JSON-Bytes (Data)
         pokemon.statsData = (try? JSONEncoder().encode(statEntries)) ?? Data()
+
+        // Höhe, Gewicht und Fähigkeiten übernehmen
+        pokemon.height = detail.height
+        pokemon.weight = detail.weight
+        pokemon.abilitiesRaw = detail.abilities
+            .sorted { $0.slot < $1.slot }
+            .map { $0.isHidden ? "\($0.ability.name)(H)" : $0.ability.name }
+            .joined(separator: ",")
+
         pokemon.isDetailFetched = true
     }
 
