@@ -10,34 +10,73 @@ import SwiftData
 
 struct PokemonListView: View {
 
-    // @Query ist ein SwiftData-Makro das eine Datenbankabfrage definiert.
-    // SwiftUI aktualisiert die View automatisch, sobald sich die Daten ändern (reaktiv).
-    // sort: \Pokemon.id → Sortiere nach Pokédex-Nummer aufsteigend.
-    // animation: .default → Neue Einträge erscheinen mit einer sanften Animation.
+    // @Query lädt alle Pokémon aus der Datenbank, sortiert nach Pokédex-Nummer.
+    // Das Filtering erfolgt danach in-memory (1025 Einträge = vernachlässigbare Performance).
     @Query(sort: \Pokemon.id, animation: .default)
-    private var pokemon: [Pokemon]   // Enthält alle Pokémon aus der Datenbank
+    private var pokemon: [Pokemon]
+
+    // Suchtext aus der .searchable-Leiste
+    @State private var searchText = ""
+
+    // Ausgewählte Generationen; leeres Set = alle Generationen werden angezeigt
+    @State private var selectedGenerations: Set<Int> = []
+
+    // Pokémon-Namen der 9 Generationen für die Section-Header
+    private let generationNames: [Int: String] = [
+        1: "Generation I",
+        2: "Generation II",
+        3: "Generation III",
+        4: "Generation IV",
+        5: "Generation V",
+        6: "Generation VI",
+        7: "Generation VII",
+        8: "Generation VIII",
+        9: "Generation IX"
+    ]
+
+    /// Filtert die Pokémon-Liste nach aktiver Generationsauswahl und Suchtext.
+    private var filteredPokemon: [Pokemon] {
+        pokemon
+            // Generationsfilter: leeres Set = alle durchlassen
+            .filter { selectedGenerations.isEmpty || selectedGenerations.contains($0.generation) }
+            // Namenssuche: case-insensitiv, Teilstring-Suche
+            .filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    /// Gruppiert die gefilterten Pokémon nach Generation und sortiert die Gruppen aufsteigend.
+    private var groupedPokemon: [(generation: Int, pokemon: [Pokemon])] {
+        let grouped = Dictionary(grouping: filteredPokemon, by: \.generation)
+        return grouped.keys.sorted().map { (generation: $0, pokemon: grouped[$0]!) }
+    }
 
     var body: some View {
-        // NavigationStack ermöglicht Push-Navigation (z. B. Detailansicht öffnen).
-        // Alle Views innerhalb können .navigationTitle setzen.
         NavigationStack {
-            // List zeigt eine scrollbare Liste von Views an.
-            // Identifiable: Pokemon braucht eine eindeutige id-Eigenschaft (hat sie durch @Attribute(.unique)).
-            List(pokemon) { mon in
-                // Für jedes Pokémon eine Zeile anzeigen
-                PokemonRowView(pokemon: mon)
+            List {
+                // Liquid-Glass-Filterleiste ganz oben, ohne Listenstil-Rahmen
+                GenerationFilterView(selectedGenerations: $selectedGenerations)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
+                // Pokémon in Sections, eine pro Generation
+                ForEach(groupedPokemon, id: \.generation) { group in
+                    Section(generationNames[group.generation] ?? "Generation \(group.generation)") {
+                        ForEach(group.pokemon) { mon in
+                            PokemonRowView(pokemon: mon)
+                        }
+                    }
+                }
             }
-            // .plain entfernt den Standard-iOS-Listenstil (kein Trennstrich, kein Gruppenrahmen)
             .listStyle(.plain)
+            // iOS-Standard-Suchleiste — integriert sich automatisch in die NavigationStack-Bar
+            .searchable(text: $searchText, prompt: "Pokémon suchen…")
             .navigationTitle("Pokédex")
-            // .overlay legt eine zusätzliche View oben drüber, wenn eine Bedingung zutrifft
             .overlay {
-                // Solange noch keine Pokémon geladen sind, Ladehinweis anzeigen
+                // Ladehinweis solange die Datenbank noch leer ist
                 if pokemon.isEmpty {
-                    // ContentUnavailableView ist Apples eingebaute "leer"-Ansicht (ab iOS 17)
                     ContentUnavailableView(
                         "Loading Pokédex...",
-                        systemImage: "arrow.down.circle",      // SF Symbol Name
+                        systemImage: "arrow.down.circle",
                         description: Text("Fetching all 1025 Pokémon")
                     )
                 }

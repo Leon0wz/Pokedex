@@ -69,4 +69,20 @@ final class Pokemon {
     var stats: [StatEntry] {
         (try? JSONDecoder().decode([StatEntry].self, from: statsData)) ?? []
     }
+
+    // Berechnet die Generation anhand der Pokédex-Nummer.
+    // Die Grenzen entsprechen den offiziellen Generationsbereichen der Hauptreihe.
+    var generation: Int {
+        switch id {
+        case 1...151:   return 1
+        case 152...251: return 2
+        case 252...386: return 3
+        case 387...493: return 4
+        case 494...649: return 5
+        case 650...721: return 6
+        case 722...809: return 7
+        case 810...905: return 8
+        default:        return 9
+        }
+    }
 }
