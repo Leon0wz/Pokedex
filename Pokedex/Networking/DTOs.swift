@@ -35,7 +35,9 @@ struct PokemonListItem: Codable, Sendable {
     /// Extracts the numeric ID from the trailing path component of the URL.
     /// Liest die numerische ID aus dem letzten Teil der URL heraus.
     /// Beispiel: "https://pokeapi.co/api/v2/pokemon/1/" → 1
-    var id: Int? {
+    /// nonisolated: Diese Property wird aus einem nonisolated Actor-Kontext gelesen
+    /// (PokemonService). Da der Struct Sendable ist, ist der Zugriff thread-sicher.
+    nonisolated var id: Int? {
         // split(separator:) trennt die URL an "/" auf → letztes Element ist die ID.
         // Int(...) versucht den String in eine Zahl umzuwandeln — gibt nil zurück wenn es fehlschlägt.
         Int(url.split(separator: "/").last ?? "")
