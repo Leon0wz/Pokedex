@@ -68,8 +68,12 @@ struct PokemonListView: View {
                 }
             }
             .listStyle(.plain)
-            // iOS-Standard-Suchleiste — integriert sich automatisch in die NavigationStack-Bar
-            .searchable(text: $searchText, prompt: "Pokémon suchen…")
+            // displayMode: .always → Suchleiste immer sichtbar, kein Einblend-Lag beim Tippen
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Pokémon suchen…"
+            )
             .navigationTitle("Pokédex")
             .overlay {
                 // Ladehinweis solange die Datenbank noch leer ist
