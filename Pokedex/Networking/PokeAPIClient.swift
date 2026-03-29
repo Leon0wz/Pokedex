@@ -105,9 +105,10 @@ struct PokeAPIClient: PokeAPIClientProtocol {
     }
 
     // Generische Hilfsmethode für alle HTTP-GET-Anfragen.
-    // <T: Decodable> = Typparameter: T kann jeder Typ sein, der Decodable implementiert.
+    // <T: Decodable & Sendable> — Sendable ist nötig damit der Wert sicher von MainActor
+    // zurück in den nonisolated Kontext übergeben werden kann (Swift 6 Concurrency).
     // Der Aufrufer bestimmt welchen Typ er zurückbekommen möchte (z. B. PokemonListResponse).
-    nonisolated private func fetch<T: Decodable>(url: URL, as type: T.Type) async throws -> T {
+    nonisolated private func fetch<T: Decodable & Sendable>(url: URL, as type: T.Type) async throws -> T {
         // session.data(from:) führt den Netzwerkaufruf durch und liefert Rohdaten + Antwort.
         // await = warte bis die Antwort da ist (blockiert nicht den Thread)
         let (data, response) = try await session.data(from: url)
