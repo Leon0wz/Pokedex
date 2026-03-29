@@ -124,13 +124,8 @@ struct PokeAPIClient: PokeAPIClientProtocol {
         }
 
         // JSONDecoder wandelt die rohen JSON-Bytes in ein Swift-Objekt vom Typ T um.
-        // MainActor.run: Mit SWIFT_DEFAULT_ACTOR_ISOLATION=MainActor werden die
-        // synthesized Decodable-Initializer @MainActor-isoliert. Durch explizites
-        // Hopping auf den MainActor für den Decode-Call wird der Swift 6 Fehler behoben.
         do {
-            return try await MainActor.run {
-                try JSONDecoder().decode(T.self, from: data)
-            }
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             // Dekodierungsfehler in unseren eigenen Fehlertyp einwickeln
             throw PokeAPIError.decodingError(underlying: error)

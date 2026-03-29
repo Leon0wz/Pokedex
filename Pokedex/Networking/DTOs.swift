@@ -22,13 +22,13 @@ import Foundation
 // Antwort der API auf: GET /api/v2/pokemon?limit=1025&offset=0
 
 /// Antwort der API wenn eine Liste von Pokémon abgerufen wird.
-struct PokemonListResponse: Codable, Sendable {
+nonisolated struct PokemonListResponse: Codable, Sendable {
     let count: Int                    // Gesamtanzahl aller Pokémon in der API
     let results: [PokemonListItem]    // Array mit Name und URL für jedes Pokémon
 }
 
 /// Ein einzelner Eintrag in der Pokémon-Liste (Name + URL zum Detail-Endpunkt).
-struct PokemonListItem: Codable, Sendable {
+nonisolated struct PokemonListItem: Codable, Sendable {
     let name: String  // Pokémon-Name, z. B. "bulbasaur"
     let url: String   // URL zum Detail-Endpunkt, z. B. "https://pokeapi.co/api/v2/pokemon/1/"
 
@@ -48,7 +48,7 @@ struct PokemonListItem: Codable, Sendable {
 // Antwort der API auf: GET /api/v2/pokemon/{id}
 
 /// Vollständige Detailinformationen eines Pokémon von der API.
-struct PokemonDetailResponse: Codable, Sendable {
+nonisolated struct PokemonDetailResponse: Codable, Sendable {
     let id: Int               // Pokédex-Nummer
     let name: String          // Name des Pokémon
     let sprites: Sprites      // BildURLs
@@ -56,7 +56,7 @@ struct PokemonDetailResponse: Codable, Sendable {
     let stats: [StatSlot]     // Basis-Stats (KP, Angriff, Verteidigung usw.)
 
     /// Enthält die URLs zu den verschiedenen Sprite-Bildern des Pokémon.
-    struct Sprites: Codable, Sendable {
+    nonisolated struct Sprites: Codable, Sendable {
         let frontDefault: String?   // URL zum Standard-Sprite (Pixelgrafik)
         let other: OtherSprites?    // Optionaler Block mit weiteren Artwork-Varianten
 
@@ -68,7 +68,7 @@ struct PokemonDetailResponse: Codable, Sendable {
         }
 
         /// Weitere Sprite-Varianten außerhalb der Standard-Sprites.
-        struct OtherSprites: Codable, Sendable {
+        nonisolated struct OtherSprites: Codable, Sendable {
             let officialArtwork: OfficialArtwork?   // Das hochauflösende offizielle Artwork
 
             // JSON-Schlüssel "official-artwork" (mit Bindestrich!) → Swift-Name officialArtwork
@@ -77,7 +77,7 @@ struct PokemonDetailResponse: Codable, Sendable {
             }
 
             /// Das offizielle Artwork-Bild des Pokémon (hochauflösend).
-            struct OfficialArtwork: Codable, Sendable {
+            nonisolated struct OfficialArtwork: Codable, Sendable {
                 let frontDefault: String?   // URL zum offiziellen Artwork
                 enum CodingKeys: String, CodingKey {
                     case frontDefault = "front_default"
@@ -87,13 +87,13 @@ struct PokemonDetailResponse: Codable, Sendable {
     }
 
     /// Ein Typ-Slot: Pokémon können bis zu zwei Typen haben (slot 1 und slot 2).
-    struct TypeSlot: Codable, Sendable {
+    nonisolated struct TypeSlot: Codable, Sendable {
         let slot: Int              // Position (1 = primär, 2 = sekundär)
         let type: NamedResource    // Der eigentliche Typ (Name + URL)
     }
 
     /// Ein Stat-Slot: enthält den Basiswert und den Namen des Stats.
-    struct StatSlot: Codable, Sendable {
+    nonisolated struct StatSlot: Codable, Sendable {
         let baseStat: Int          // Der Basiswert des Stats (z. B. 45 für KP)
         let stat: NamedResource    // Der Name des Stats (z. B. "hp", "attack")
 
@@ -107,7 +107,7 @@ struct PokemonDetailResponse: Codable, Sendable {
 
 /// Allgemeines Objekt der PokeAPI für benannte Ressourcen mit Referenz-URL.
 /// Wird für Typen, Stats und andere verlinkbare Ressourcen verwendet.
-struct NamedResource: Codable, Sendable {
+nonisolated struct NamedResource: Codable, Sendable {
     let name: String   // Name der Ressource, z. B. "fire" oder "attack"
     let url: String    // Link zur Detailseite der Ressource in der API
 }
