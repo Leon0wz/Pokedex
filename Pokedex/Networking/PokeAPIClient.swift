@@ -22,6 +22,9 @@ protocol PokeAPIClientProtocol: Sendable {
 
     /// Lädt die Detaildaten eines einzelnen Pokémon anhand seiner ID.
     func fetchPokemonDetail(id: Int) async throws -> PokemonDetailResponse
+
+    /// Lädt die Species-Daten eines Pokémon (Beschreibungstext, Kategorie, etc.).
+    func fetchPokemonSpecies(id: Int) async throws -> PokemonSpeciesResponse
 }
 
 // MARK: - Errors
@@ -99,9 +102,13 @@ struct PokeAPIClient: PokeAPIClientProtocol {
     }
 
     nonisolated func fetchPokemonDetail(id: Int) async throws -> PokemonDetailResponse {
-        // appending(path:) hängt einen Pfad-Abschnitt an die Basis-URL an
         let url = baseURL.appending(path: "pokemon/\(id)")
         return try await fetch(url: url, as: PokemonDetailResponse.self)
+    }
+
+    nonisolated func fetchPokemonSpecies(id: Int) async throws -> PokemonSpeciesResponse {
+        let url = baseURL.appending(path: "pokemon-species/\(id)")
+        return try await fetch(url: url, as: PokemonSpeciesResponse.self)
     }
 
     // Generische Hilfsmethode für alle HTTP-GET-Anfragen.

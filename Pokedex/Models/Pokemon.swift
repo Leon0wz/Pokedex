@@ -37,14 +37,26 @@ final class Pokemon {
     // false = nur Name+ID bekannt, true = Sprites, Typen und Stats sind vorhanden.
     var isDetailFetched: Bool
 
-    // Initializer = Konstruktor. Wird aufgerufen wenn ein neues Pokemon-Objekt erstellt wird.
-    // Beim ersten Anlegen (aus der Listen-API) kennen wir nur id und name.
+    // Neue Felder für die Detail-Ansicht
+    var height: Int              // Höhe in Dezimetern
+    var weight: Int              // Gewicht in Hektogramm
+    var abilitiesRaw: String     // Kommagetrennte Fähigkeiten, z.B. "overgrow,chlorophyll(H)"
+    var flavorText: String       // Beschreibungstext aus der Species-API
+    var genus: String            // Kategorie, z.B. "Seed Pokémon"
+    var isSpeciesFetched: Bool   // Wurden die Species-Daten bereits geladen?
+
     init(id: Int, name: String) {
         self.id = id
         self.name = name
-        self.typesRaw = ""       // Noch leer, wird beim Detail-Fetch gefüllt
-        self.statsData = Data()  // Leere Daten, werden beim Detail-Fetch gesetzt
+        self.typesRaw = ""
+        self.statsData = Data()
         self.isDetailFetched = false
+        self.height = 0
+        self.weight = 0
+        self.abilitiesRaw = ""
+        self.flavorText = ""
+        self.genus = ""
+        self.isSpeciesFetched = false
     }
 
     // Computed Property: wird jedes Mal neu berechnet wenn sie gelesen wird.
@@ -83,6 +95,28 @@ final class Pokemon {
         case 722...809: return 7
         case 810...905: return 8
         default:        return 9
+        }
+    }
+
+    /// Höhe formatiert in Metern, z.B. "0.7 m"
+    var formattedHeight: String {
+        String(format: "%.1f m", Double(height) / 10.0)
+    }
+
+    /// Gewicht formatiert in Kilogramm, z.B. "6.9 kg"
+    var formattedWeight: String {
+        String(format: "%.1f kg", Double(weight) / 10.0)
+    }
+
+    /// Fähigkeiten als Array, z.B. ["Overgrow", "Chlorophyll (Hidden)"]
+    var abilities: [String] {
+        guard !abilitiesRaw.isEmpty else { return [] }
+        return abilitiesRaw.split(separator: ",").map { raw in
+            let s = String(raw)
+            if s.hasSuffix("(H)") {
+                return s.replacingOccurrences(of: "(H)", with: "").capitalized + " (Hidden)"
+            }
+            return s.capitalized
         }
     }
 }
