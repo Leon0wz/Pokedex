@@ -132,7 +132,7 @@ nonisolated struct NamedResource: Codable, Sendable {
 // Antwort der API auf: GET /api/v2/pokemon-species/{id}
 
 /// Species-Informationen eines Pokémon (Beschreibungstext, Kategorie, etc.).
-struct PokemonSpeciesResponse: Codable, Sendable {
+nonisolated struct PokemonSpeciesResponse: Codable, Sendable {
     let id: Int
     let name: String
     let genera: [Genus]
@@ -147,12 +147,12 @@ struct PokemonSpeciesResponse: Codable, Sendable {
         case isMythical = "is_mythical"
     }
 
-    struct Genus: Codable, Sendable {
+    nonisolated struct Genus: Codable, Sendable {
         let genus: String
         let language: NamedResource
     }
 
-    struct FlavorTextEntry: Codable, Sendable {
+    nonisolated struct FlavorTextEntry: Codable, Sendable {
         let flavorText: String
         let language: NamedResource
         let version: NamedResource

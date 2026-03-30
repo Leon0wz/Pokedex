@@ -52,6 +52,13 @@ struct PokemonDetailView: View {
     @State private var viewModel = PokemonDetailViewModel()
     @State private var statsAnimated = false
 
+    private var safeAreaTop: CGFloat {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first(where: \.isKeyWindow)?
+            .safeAreaInsets.top ?? 0
+    }
+
     private var primaryTypeColor: Color {
         guard let first = pokemon.types.first else { return .gray }
         return Color.pokemonType(first)
@@ -79,8 +86,54 @@ struct PokemonDetailView: View {
     // MARK: - Hero
 
     private var heroSection: some View {
-        ZStack(alignment: .bottom) {
-            // Gradient background
+        VStack(spacing: 8) {
+            // Pokedex number
+            Text(String(format: "#%03d", pokemon.id))
+                .font(.system(.subheadline, design: .monospaced, weight: .semibold))
+                .foregroundStyle(primaryTypeColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(primaryTypeColor.opacity(0.12))
+                .clipShape(Capsule())
+
+            // Artwork
+            AsyncImage(url: URL(string: pokemon.officialArtURL ?? "")) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFit()
+                case .failure:
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 80))
+                        .foregroundStyle(.tertiary)
+                default:
+                    ProgressView()
+                        .scaleEffect(1.5)
+                }
+            }
+            .frame(width: 240, height: 240)
+            .shadow(color: primaryTypeColor.opacity(0.4), radius: 30, y: 10)
+
+            // Name
+            Text(pokemon.name.capitalized)
+                .font(.system(.largeTitle, design: .rounded, weight: .bold))
+
+            // Genus
+            if !pokemon.genus.isEmpty {
+                Text(pokemon.genus)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else if viewModel.isLoadingSpecies {
+                Text(" ")
+                    .font(.subheadline)
+                    .redacted(reason: .placeholder)
+            }
+        }
+        .padding(.top, safeAreaTop + 12)
+        .padding(.bottom, 20)
+        .frame(maxWidth: .infinity)
+        .background(alignment: .top) {
             LinearGradient(
                 colors: [
                     primaryTypeColor.opacity(0.5),
@@ -90,53 +143,7 @@ struct PokemonDetailView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 360)
-
-            VStack(spacing: 8) {
-                // Pokedex number
-                Text(String(format: "#%03d", pokemon.id))
-                    .font(.system(.subheadline, design: .monospaced, weight: .semibold))
-                    .foregroundStyle(primaryTypeColor)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(primaryTypeColor.opacity(0.12))
-                    .clipShape(Capsule())
-
-                // Artwork
-                AsyncImage(url: URL(string: pokemon.officialArtURL ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    case .failure:
-                        Image(systemName: "questionmark.circle")
-                            .font(.system(size: 80))
-                            .foregroundStyle(.tertiary)
-                    default:
-                        ProgressView()
-                            .scaleEffect(1.5)
-                    }
-                }
-                .frame(width: 240, height: 240)
-                .shadow(color: primaryTypeColor.opacity(0.4), radius: 30, y: 10)
-
-                // Name
-                Text(pokemon.name.capitalized)
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-
-                // Genus
-                if !pokemon.genus.isEmpty {
-                    Text(pokemon.genus)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else if viewModel.isLoadingSpecies {
-                    Text(" ")
-                        .font(.subheadline)
-                        .redacted(reason: .placeholder)
-                }
-            }
-            .padding(.bottom, 20)
+            .ignoresSafeArea(edges: .top)
         }
     }
 
